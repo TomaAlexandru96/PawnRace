@@ -216,7 +216,12 @@ public class PawnRace {
                 current = p2;
             }
 
-            board.display(current.getColor());
+            if (inputMode.equals("3")) {
+                board.display(Color.WHITE);
+            } else {
+                board.display(current.getColor());
+            }
+
             if (game.getGameResult() == Color.WHITE) {
                 System.out.println("White has won!!!");
             } else if (game.getGameResult() == Color.BLACK) {
