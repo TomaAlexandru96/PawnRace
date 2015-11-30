@@ -4,6 +4,7 @@ public class PawnRace {
     public static Color p1c, p2c;
     public static char wgap, bgap;
     public static boolean p1comp, p2comp;
+    public static boolean debug = false;
 
     public static void main(String[] args) {
         // menu
@@ -13,6 +14,15 @@ public class PawnRace {
         read1();
         // end menu
 
+        //DEBUG MODE
+        if (args.length > 0) {
+            for (String arg : args) {
+                if (arg.toLowerCase().equals("debug")) {
+                    debug = true;
+                }
+            }
+        }
+        //END DEBUG MODE
 
         /*
         // TEST ALL MOVES
@@ -45,8 +55,8 @@ public class PawnRace {
         // INITIALIZE GAME
         board = new Board(wgap, bgap);
         game  = new Game(board);
-        p1    = new Player(game, board, p1c, p1comp);
-        p2    = new Player(game, board, p2c, p2comp);
+        p1    = new Player(game, board, p1c, p1comp, debug);
+        p2    = new Player(game, board, p2c, p2comp, debug);
         p1.setOpponent(p2);
         p2.setOpponent(p1);
         // END INIT
@@ -64,6 +74,18 @@ public class PawnRace {
                 current = p2;
             }
 
+            /*
+            //test area
+            for (int i = 0;i < 8; i++) {
+                for (int j = 0; j< 8; j++) {
+                    if (current.isPassedPawn(new Square(i, j))) {
+                        System.out.println("IS PASSED: (" + (i + 1) + "," + (j + 1) + ")");
+                    }
+                }
+            }
+            //end test area
+            */
+
             if (!current.isComputerPlayer()) {
                 board.display(current.getColor());
             }
@@ -75,10 +97,12 @@ public class PawnRace {
                 if (game.getCurrentPlayer() == Color.WHITE) {
                     if (current.g.k > 0) {
                         System.out.println("Last move was BLACK: " + current.g.getLastMove().getSAN());
+                        System.out.println("It's white's turn to move");
                     }
                 } else {
                     if (current.g.k > 0) {
                         System.out.println("Last move was WHITE: " + current.g.getLastMove().getSAN());
+                        System.out.println("It's black's turn to move");
                     }
                 }
                 System.out.println("Press enter to continue. (Commands: exit, menu, undo, undo2, help still work)");
@@ -338,7 +362,8 @@ public class PawnRace {
     public static void read3() {
         String input = "";
 
-        System.out.println("Select white's gap and black's gap in this order (eg. W: a, B: h):");
+        System.out.println("Select white's gap and black's gap in this order (eg. W: h, B: a" +
+                "):");
 
         System.out.print("White's gap: ");
         input = IOUtil.readString().toLowerCase();

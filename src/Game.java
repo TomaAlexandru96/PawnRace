@@ -69,7 +69,7 @@ public class Game {
             return true;
         }
 
-        Player randPlayer = new Player(this, b, currentPlayer, false);
+        Player randPlayer = new Player(this, b, currentPlayer, false, false);
         if (randPlayer.getAllValidMoves().length == 0) {
             return true;
         }
@@ -337,25 +337,34 @@ public class Game {
                        // System.out.println("ENPASSANT");
                         //ENPASSANT
                         if (k > 1) {
-                            if (ms[k].getFrom().getX() == 6 && ms[k].getTo().getX() == 4 && ms[k].getTo().getY() == yt && ms[k].getFrom().getY() == yt) {
+                            if (ms[k].getFrom().getX() == 6 && ms[k].getTo().getX() == 4 && ms[k].getTo().getY() == yt && ms[k].getFrom().getY() == yt && xf == xt) {
                                 //System.out.println("Debug: 1 if");
-                                if (b.getSquare(xt, yt).occupiedBy() == Color.NONE) {
-                                    /*System.out.println("Debug: 2 if");
-                                    System.out.println("yt = " + yt + " yf = "+ yf);
-                                    System.out.println("xf = " + xf + " xt = "+ xt);*/
-                                    if (Math.abs(yt - yf) == 1 && xf == xt - 1) {
-                                        return true;
-                                    }
+                                /*System.out.println("Debug: 2 if");
+                                System.out.println("yt = " + yt + " yf = "+ yf);
+                                System.out.println("xf = " + xf + " xt = "+ xt);*/
+
+                                if (Math.abs(yt - yf) == 1 && xf == xt - 1) {
+                                    /*System.out.println("INTRA EN PASSANT1: from ("+(m.getFrom().getX()+1)+","+(m.getFrom().getY()+1)+") " +
+                                            "to ("+(m.getTo().getX()+1)+","+(m.getTo().getY()+1)+") isCapture: "+m.isCapture());
+                                    System.out.println("Real: xf = "+ (xf) +", yf = " + (yf) + ", xt = " + (xt) + ", yt = " + (yt) + " occupied by " + b.getSquare(xt, yt).occupiedBy());*/
+
+                                    return true;
                                 }
+
                             }
                         }
                     }
                 } else if (b.getSquare(xt, yt).occupiedBy() == Color.BLACK && m.isCapture()) {
                     if (Math.abs(yt - yf) == 1 && xf == xt - 1) {
+                        /*System.out.println("INTRA CAPTURE1: from ("+(m.getFrom().getX()+1)+","+(m.getFrom().getY()+1)+") " +
+                                "to ("+(m.getTo().getX()+1)+","+(m.getTo().getY()+1)+") isCapture: "+m.isCapture());
+                        System.out.println("Real: xf = "+ (xf) +", yf = " + (yf) + ", xt = " + (xt) + ", yt = " + (yt) + " occupied by " + b.getSquare(xt, yt).occupiedBy());*/
                         return true;
                     }
                 }
+                //PLAYER WHITE
             } else {
+                //PLAYER BLACK
                 //System.out.println("player == Color.BLACK");
                 if (b.getSquare(xt, yt).occupiedBy() == Color.NONE) {
                     //System.out.println("b.getSquare(xt, yt).occupiedBy() == Color.NONE");
@@ -373,21 +382,25 @@ public class Game {
                         //System.out.println("ENPASSANT");
                         //ENPASANT
                         if (k > 1) {
-                            if (ms[k].getFrom().getX() == 1 && ms[k].getTo().getX() == 3 && ms[k].getTo().getY() == yt && ms[k].getFrom().getY() == yt) {
+                            if (ms[k].getFrom().getX() == 1 && ms[k].getTo().getX() == 3 && ms[k].getTo().getY() == yt && ms[k].getFrom().getY() == yt  && xf == xt) {
                                 //System.out.println("Debug: 1 if");
-                                if (b.getSquare(xt, yt).occupiedBy() == Color.NONE) {
-                                    /*System.out.println("Debug: 2 if");
-                                    System.out.println("yt = " + yt + " yf = "+ yf);
-                                    System.out.println("xf = " + xf + " xt = "+ xt);*/
-                                    if (Math.abs(yt - yf) == 1 && xf == xt + 1) {
-                                        return true;
-                                    }
+                                /*System.out.println("Debug: 2 if");
+                                System.out.println("yt = " + yt + " yf = "+ yf);
+                                System.out.println("xf = " + xf + " xt = "+ xt);*/
+                                if (Math.abs(yt - yf) == 1 && xf == xt + 1) {
+                                    /*System.out.println("INTRA EN PASSANT2: from ("+(m.getFrom().getX()+1)+","+(m.getFrom().getY()+1)+") " +
+                                            "to ("+(m.getTo().getX()+1)+","+(m.getTo().getY()+1)+") isCapture: "+m.isCapture());
+                                    System.out.println("Real: xf = "+ (xf) +", yf = " + (yf) + ", xt = " + (xt) + ", yt = " + (yt) + " occupied by " + b.getSquare(xt, yt).occupiedBy());*/
+                                    return true;
                                 }
                             }
                         }
                     }
                 } else if (b.getSquare(xt, yt).occupiedBy() == Color.WHITE && m.isCapture()) {
                     if (Math.abs(yt - yf) == 1 && xf == xt + 1) {
+                        /*System.out.println("INTRA CAPTURE2: from ("+(m.getFrom().getX()+1)+","+(m.getFrom().getY()+1)+") " +
+                                "to ("+(m.getTo().getX()+1)+","+(m.getTo().getY()+1)+") isCapture: "+m.isCapture());
+                        //System.out.println("Real: xf = "+ (xf) +", yf = " + (yf) + ", xt = " + (xt) + ", yt = " + (yt) + " occupied by " + b.getSquare(xt, yt).occupiedBy());*/
                         return true;
                     }
                 }

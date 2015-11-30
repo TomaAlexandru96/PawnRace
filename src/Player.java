@@ -6,12 +6,14 @@ public class Player {
     private Color c;
     private boolean isComputer;
     private Player opponent;
+    boolean debug;
 
-    public Player(Game game, Board board, Color color, boolean isComputerPlayer) {
+    public Player(Game game, Board board, Color color, boolean isComputerPlayer, boolean debug) {
         g = game;
         b = board;
         c = color;
         isComputer = isComputerPlayer;
+        this.debug = debug;
     }
 
     public void setOpponent(Player opponent) {
@@ -95,22 +97,75 @@ public class Player {
     }
 
     public boolean isPassedPawn(Square square) {
+        int xp, yp;
+        boolean isPassed = true;
+        Color opposite, aux;
+        Move move;
+
+        xp = square.getX();
+        yp = square.getY();
+        if (b.getSquare(xp, yp).occupiedBy() != c) {
+            return false;
+        }
+
         if (c == Color.WHITE) {
-            if (b.getSquare(square.getX() - 1, square.getY() - 1).occupiedBy() == Color.WHITE) {
-                return true;
-            }
-            if (b.getSquare(square.getX() - 1, square.getY() + 1).occupiedBy() == Color.WHITE) {
-                return true;
+            opposite = Color.BLACK;
+
+            for (int i = xp; i < 7; i++) {
+                aux = b.getSquare(i, yp).occupiedBy();
+                b.getSquare(i, yp).setOccupier(Color.WHITE);
+
+                if (b.getSquare(i + 1, yp).occupiedBy() == opposite) {
+                    isPassed = false;
+                }
+
+                if (yp != 0) {
+                    move = new Move(new Square(i + 1, yp - 1), new Square(i, yp), true);
+                    //System.out.println("Move is " + (i+1) + (yp-1) + i + yp +" " + g.isValid(move, c));
+                    if (g.isValid(move, opposite)) {
+                        isPassed = false;
+                    }
+                }
+                if (yp != 7) {
+                    move = new Move(new Square(i + 1, yp + 1), new Square(i, yp), true);
+                    //System.out.println("Move is " + (i+1) + (yp+1) + i + yp +" " + g.isValid(move, c));
+                    if (g.isValid(move, opposite)) {
+                        isPassed = false;
+                    }
+                }
+
+                b.getSquare(i, yp).setOccupier(aux);
             }
         } else {
-            if (b.getSquare(square.getX() + 1, square.getY() - 1).occupiedBy() == Color.BLACK) {
-                return true;
-            }
-            if (b.getSquare(square.getX() + 1, square.getY() + 1).occupiedBy() == Color.BLACK) {
-                return true;
+            opposite = Color.WHITE;
+
+            for (int i = xp; i > 0; i--) {
+                aux = b.getSquare(i, yp).occupiedBy();
+                b.getSquare(i, yp).setOccupier(Color.BLACK);
+
+                if (b.getSquare(i + 1, yp).occupiedBy() == opposite) {
+                    isPassed = false;
+                }
+                if (yp != 0) {
+                    move = new Move(new Square(i - 1, yp - 1), new Square(i, yp), true);
+                    //System.out.println("Move is " + (i-1) + (yp-1) + i + yp +" " + g.isValid(move, c));
+                    if (g.isValid(move, opposite)) {
+                        isPassed = false;
+                    }
+                }
+                if (yp != 7) {
+                    move = new Move(new Square(i - 1, yp + 1), new Square(i, yp), true);
+                    //System.out.println("Move is " + (i-1) + (yp-1) + i + yp +" " + g.isValid(move, c));
+                    if (g.isValid(move, opposite)) {
+                        isPassed = false;
+                    }
+                }
+
+                b.getSquare(i, yp).setOccupier(aux);
             }
         }
-        return false;
+
+        return isPassed;
     }
 
     public void makeMove() {
@@ -118,12 +173,36 @@ public class Player {
             Random rg    = new Random();
             Move[] moves = getAllValidMoves();
             Move moveToMake;
+            int randomNumber;
             int n        = moves.length;
             // NO EDIT
 
 
             // AI ALGORITHM
-            moveToMake = moves[rg.nextInt(n)];
+
+            randomNumber = rg.nextInt(n);
+
+            if (debug) {
+                System.out.println("LOOKUP ^");
+                System.out.println("LOOKUP |");
+                for (int i = 0; i < moves.length; i++) {
+                    String check = "";
+
+                    if (randomNumber == i) {
+                        check = "x";
+                    } else {
+                        check = "";
+                    }
+
+                    System.out.println("MOVE " + c + ": from (" + (moves[i].getFrom().getX() + 1) + "," + (moves[i].getFrom().getY() + 1) + ") " +
+                            "to (" + (moves[i].getTo().getX() + 1) + "," + (moves[i].getTo().getY() + 1) + ") isCapture: " + moves[i].isCapture() + " " + check);
+                }
+                System.out.println(moves.length + " moves available.");
+            }
+
+            moveToMake = moves[randomNumber];
+
+
             // END AI ALGORITHM
 
 
