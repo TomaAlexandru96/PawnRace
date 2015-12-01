@@ -49,7 +49,9 @@ public class Game {
                 xt = ms[k - 1].getTo().getX();
                 yt = ms[k - 1].getTo().getY();
 
-                if ((xf == 1 && xt == 3) || (xf == 6 && xt == 4)) {
+                if ( ((xf == 1 && xt == 3 && move.getTo().getX() == 2) || (xf == 6 && xt == 4 && move.getTo().getX() == 5))
+                        && yt == yf
+                        && Math.abs(move.getFrom().getY() - move.getTo().getY()) == 1) {
                     b.unapplyMove(ms[k], true);
                 } else {
                     b.unapplyMove(ms[k], false);
@@ -249,7 +251,7 @@ public class Game {
             }
 
             newMove = new Move(new Square(xf, yf), new Square(xt, yt), true);
-        } else if (cSan.length == 5 && (cSan[1] == 'x' || cSan[1] == 'X')){
+        } else if (cSan.length == 5 && (cSan[2] == 'x' || cSan[2] == 'X')){
             //LONG FORMAT CAPTURE
 
             int xf, yf, xt, yt;
@@ -337,13 +339,13 @@ public class Game {
                        // System.out.println("ENPASSANT");
                         //ENPASSANT
                         if (k > 1) {
-                            if (ms[k].getFrom().getX() == 6 && ms[k].getTo().getX() == 4 && ms[k].getTo().getY() == yt && ms[k].getFrom().getY() == yt && xf == xt) {
+                            if (ms[k].getFrom().getX() == 6 && ms[k].getTo().getX() == 4 && ms[k].getTo().getY() == yt && ms[k].getFrom().getY() == yt) {
                                 //System.out.println("Debug: 1 if");
                                 /*System.out.println("Debug: 2 if");
                                 System.out.println("yt = " + yt + " yf = "+ yf);
                                 System.out.println("xf = " + xf + " xt = "+ xt);*/
 
-                                if (Math.abs(yt - yf) == 1 && xf == xt - 1) {
+                                if (Math.abs(yt - yf) == 1 && xf == xt - 1 && xt == 5) {
                                     /*System.out.println("INTRA EN PASSANT1: from ("+(m.getFrom().getX()+1)+","+(m.getFrom().getY()+1)+") " +
                                             "to ("+(m.getTo().getX()+1)+","+(m.getTo().getY()+1)+") isCapture: "+m.isCapture());
                                     System.out.println("Real: xf = "+ (xf) +", yf = " + (yf) + ", xt = " + (xt) + ", yt = " + (yt) + " occupied by " + b.getSquare(xt, yt).occupiedBy());*/
@@ -382,12 +384,12 @@ public class Game {
                         //System.out.println("ENPASSANT");
                         //ENPASANT
                         if (k > 1) {
-                            if (ms[k].getFrom().getX() == 1 && ms[k].getTo().getX() == 3 && ms[k].getTo().getY() == yt && ms[k].getFrom().getY() == yt  && xf == xt) {
+                            if (ms[k].getFrom().getX() == 1 && ms[k].getTo().getX() == 3 && ms[k].getTo().getY() == yt && ms[k].getFrom().getY() == yt) {
                                 //System.out.println("Debug: 1 if");
                                 /*System.out.println("Debug: 2 if");
                                 System.out.println("yt = " + yt + " yf = "+ yf);
                                 System.out.println("xf = " + xf + " xt = "+ xt);*/
-                                if (Math.abs(yt - yf) == 1 && xf == xt + 1) {
+                                if (Math.abs(yt - yf) == 1 && xf == xt + 1 && xt == 2) {
                                     /*System.out.println("INTRA EN PASSANT2: from ("+(m.getFrom().getX()+1)+","+(m.getFrom().getY()+1)+") " +
                                             "to ("+(m.getTo().getX()+1)+","+(m.getTo().getY()+1)+") isCapture: "+m.isCapture());
                                     System.out.println("Real: xf = "+ (xf) +", yf = " + (yf) + ", xt = " + (xt) + ", yt = " + (yt) + " occupied by " + b.getSquare(xt, yt).occupiedBy());*/
