@@ -242,6 +242,8 @@ public class PawnRace {
 
             if (inputMode.equals("3")) {
                 board.display(Color.WHITE);
+            } else if (inputMode.equals("2")) {
+                board.display(p1.getColor());
             } else {
                 board.display(current.getColor());
             }

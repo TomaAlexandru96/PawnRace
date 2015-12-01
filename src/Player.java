@@ -7,6 +7,8 @@ public class Player {
     private boolean isComputer;
     private Player opponent;
     boolean debug;
+    private int gap;
+    private int opponentGap;
 
     public Player(Game game, Board board, Color color, boolean isComputerPlayer, boolean debug) {
         g = game;
@@ -14,11 +16,14 @@ public class Player {
         c = color;
         isComputer = isComputerPlayer;
         this.debug = debug;
+        gap = getMissing(c);
     }
 
     public void setOpponent(Player opponent) {
         this.opponent = opponent;
+        opponentGap = getMissing(opponent.getColor());
     }
+
 
     public Color getColor() {
         return c;
@@ -206,28 +211,39 @@ public class Player {
         boolean isGuarded = false;
         x = square.getX();
         y = square.getY();
-        //System.out.println(square.occupiedBy());
+
         if (square.occupiedBy() == Color.WHITE) {
             if (x != 0) {
                 if (y != 0) {
-                    isGuarded = b.getSquare(x - 1, y - 1).occupiedBy() == Color.WHITE;
+                    if (b.getSquare(x - 1, y - 1).occupiedBy() == Color.WHITE) {
+                        isGuarded = true;
+                    }
+                    //System.out.println("1 : "+ isGuarded + "("+x+","+y+") color: " + b.getSquare(x - 1, y - 1).occupiedBy());
                 }
                 if (y != 7) {
-                    isGuarded = b.getSquare(x - 1, y + 1).occupiedBy() == Color.WHITE;
+                    if (b.getSquare(x - 1, y + 1).occupiedBy() == Color.WHITE) {
+                        isGuarded = true;
+                    }
                 }
             }
         } else if (square.occupiedBy() == Color.BLACK) {
             if (x != 7) {
                 if (y != 0) {
-                    isGuarded = b.getSquare(x + 1, y - 1).occupiedBy() == Color.BLACK;
+                    if (b.getSquare(x + 1, y - 1).occupiedBy() == Color.BLACK) {
+                        isGuarded = true;
+                    }
                 }
                 if (y != 7) {
-                    isGuarded = b.getSquare(x + 1, y + 1).occupiedBy() == Color.BLACK;
+                    if (b.getSquare(x + 1, y + 1).occupiedBy() == Color.BLACK) {
+                        isGuarded = true;
+                    }
                 }
             }
         } else {
-            isGuarded = true;
+            isGuarded = false;
         }
+
+        //System.out.println("Final : " + isGuarded);
         return isGuarded;
     }
 
@@ -235,11 +251,7 @@ public class Player {
         if (isComputer) {
             Random rg      = new Random();
             Move[] moves   = getAllValidMoves();
-            Square[] oppoistePawns;
-            Square[] myPawns;
-            Square pawn;
             Move moveToMake;
-            Color opposite;
             int moveNo = 0;
             int n = moves.length;
             int[] ranks = new int[n];
@@ -251,200 +263,185 @@ public class Player {
 
 
             // AI ALGORITHM ------------------
-            // if move and make opponent have passedPawn and current no passedPawn -100
-            // guard pawn = 1
-            // capture unguarded pawn = 2
-            // isPassedPawn = 5
-            // isPassedPawn and capture = 7
-            // last line = 1000
 
-            opposite = opponent.getColor();
-
-            if (g.k == 0 || g.k == 1) {
-                if (getMissing(c) == 0 || getMissing(c) == 7) {
-                    int difference;
-                    difference = Math.abs(getMissing(c) - 2);
-                    for (int i = 0; i < moves.length; i++) {
-
-                        xt = moves[i].getTo().getX();
-                        yt = moves[i].getTo().getY();
-                        xf = moves[i].getFrom().getX();
-                        yf = moves[i].getFrom().getY();
-
-                        if (yf == difference && (xt == 3 || xt == 4)) {
-                            moveNo = i;
-                        }
-                    }
-                } else {
-                    moveNo = rg.nextInt(n);
-                }
-            } else {
-                //init ranks
-                for (int rank : ranks) {
-                    rank = 0;
-                }
-
-                //find passed pawns
-                min = 10;
-                int tillFin = 0;
-                for (int i = 0; i < moves.length; i++) {
-                    applyToWholeBoard(moves[i]);
-                    pawn = b.getSquare(moves[i].getTo().getX(), moves[i].getTo().getY());
-
-                    if (isPassedPawn(pawn, c)) {
-                        if (c == Color.WHITE) {
-                            tillFin = 7 - moves[i].getTo().getX();
-
-                        } else {
-                            tillFin = moves[i].getTo().getX() - 1;
-                        }
-                        if (min > tillFin){
-                            min = tillFin;
-                        }
-                    }
-
-                    unappltoWholeBoard(moves[i]);
-                }
-
-                boolean isOpPassed;
-
-                // main for
-                for (int i = 0; i < moves.length; i++) {
-
-                    xt = moves[i].getTo().getX();
-                    yt = moves[i].getTo().getY();
-                    xf = moves[i].getFrom().getX();
-                    yf = moves[i].getFrom().getY();
-
-                    //debug
-                    /*System.out.println("For move " + i + ": from ("+(moves[i].getFrom().getX()+1)+","+(moves[i].getFrom().getY()+1)+") " +
-                            "to ("+(moves[i].getTo().getX()+1)+","+(moves[i].getTo().getY()+1)+") isCapture: "+moves[i].isCapture() + ":");*/
-                    //debug
-
-                    // is pawn guarded, if not find a move if possible
-                    //TODO BUG WHEN IS ITSELF
-                    myPawns = getAllPawns();
-                    for (int j = 0; j < myPawns.length; j++) {
-                        if (myPawns[j].getX() != 1 && myPawns[j].getX() != 6) {
-                            if (!guardedPawn(myPawns[j])) {
-                                int x, y;
-                                x = myPawns[j].getX();
-                                y = myPawns[j].getY();
-
-                                applyToWholeBoard(moves[i]);
-
-                                if (guardedPawn(b.getSquare(x, y))) {
-                                    ranks[i] += 1;
-                                }
-                                unappltoWholeBoard(moves[i]);
-                            }
-                        }
-                    }
-
-                    applyToWholeBoard(moves[i]);
-                    pawn = b.getSquare(xt, yt);
-
-                    if (isPassedPawn(pawn, c)) {
-                        if (c == Color.WHITE) {
-                            //WHITE
-                            tillFin = 7 - xt;
-
-                            //last line
-                            if (pawn.getX() == 7) {
-                                ranks[i] += 1000;
-                            }
-                            //end last line
-
-                        } else {
-                            // BLACK
-                            tillFin = xt - 1;
-
-                            //last line
-                            if (pawn.getX() == 0) {
-                                ranks[i] += 1000;
-                            }
-                            //end last line
-                        }
-
-                        if (min == tillFin) {
-                            ranks[i] += 5;
-                            if (moves[i].isCapture()) {
-                                ranks[i] += 2;
-                            }
-                        }
-
-                        unappltoWholeBoard(moves[i]);
-
-                    } else {
-                        isOpPassed = false;
-                        oppoistePawns = opponent.getAllPawns();
-
-                        for (Square opPawn : oppoistePawns) {
-                            if (isPassedPawn(opPawn, opposite)) {
-                                isOpPassed = true;
-                            }
-                        }
-                        if (isOpPassed) {
-                            ranks[i] -= 100;
-                        }
-                        unappltoWholeBoard(moves[i]);
-
-                        if (b.getSquare(xt, yt).occupiedBy() == opposite) {
-                            // NORMAL CAPTURE
-                            if (!guardedPawn(b.getSquare(xt, yt))) {
-                                ranks[i] += 2;
-                            }
-                        } else if (b.getSquare(xt, yt).occupiedBy() == Color.NONE && moves[i].isCapture()) {
-                            // EN PASSANT
-
-                            // set none to opposite
-                            b.getSquare(xt, yt).setOccupier(opposite);
-                            if (!guardedPawn(b.getSquare(xt, yt))) {
-                                ranks[i] += 2;
-                            }
-
-                            // set opposite to none
-                            b.getSquare(xt, yt).setOccupier(Color.NONE);
-                        } else if (b.getSquare(xt, yt).occupiedBy() == Color.NONE && !moves[i].isCapture()) {
-                            // NORMAL MOVE
-                        }
-                    }
-                }
-                //end main for
-                //end find passed pawns
-
-
-
-                //NO EDIT AFTER THIS LINE RANKS END
-                //find max and random rank max
-                max = ranks[0];
-                for (int rank : ranks) {
-                    if (max < rank) {
-                        max = rank;
-                    }
-                }
-
-                for (int rank : ranks) {
-                    if (max == rank) {
-                        k++;
-                    }
-                }
-
-                chosenMoves = new int[k];
-                k = 0;
-                for (int i = 0; i < ranks.length; i++) {
-                    if (max == ranks[i]) {
-                        chosenMoves[k] = i;
-                        k++;
-                    }
-                }
-
-                int random = rg.nextInt(k);
-
-                moveNo = chosenMoves[random];
-
+            //init ranks
+            for (int rank : ranks) {
+                rank = 0;
             }
 
+            if (g.k == 0 || g.k == 1) {
+                // first move
+                int moveColumn;
+                int moveRow;
+
+                //System.out.println(gap + " "+opponentGap);
+
+                if (gap == 0) {
+                    for (int q = 0; q < moves.length; q++) {
+                        moveColumn = moves[q].getFrom().getY();
+                        moveRow    = moves[q].getTo().getX();
+                        if (moveColumn == 2 && (moveRow == 2 || moveRow == 5)) {
+                            ranks[q] = 1;
+                        }
+                    }
+                } else if (gap == 7) {
+                    for (int q = 0; q < moves.length; q++) {
+                        moveColumn = moves[q].getFrom().getY();
+                        moveRow    = moves[q].getTo().getX();
+                        if (moveColumn == 5 && (moveRow == 2 || moveRow == 5)) {
+                            ranks[q] = 1;
+                        }
+                    }
+                } else if (gap == 1 || gap == 6) {
+                    // gap at B or G
+
+                    // move other than gap
+                    for (int q = 0; q < moves.length; q++) {
+                        moveColumn = moves[q].getFrom().getY();
+
+                        //System.out.println(moveColumn + " gap: "+ gap);
+
+                        if (moveColumn != 0 && moveColumn != 7) {
+                            ranks[q] = 1;
+                        }
+                    }
+                } else if (gap == 2 || gap == 5) {
+                    // gap at C or F
+                    for (int q = 0; q < moves.length; q++) {
+                        moveColumn = moves[q].getFrom().getY();
+                        moveRow    = moves[q].getTo().getX();
+
+                        if (gap == 2) {
+                            if (moveColumn == 1 || moveColumn == 0) {
+                                if (moveRow == 2 || moveRow == 5) {
+                                    ranks[q] = 1;
+                                }
+                            }
+                        } else {
+                            if (moveColumn == 6 || moveColumn == 7) {
+                                if (moveRow == 2 || moveRow == 5) {
+                                    ranks[q] = 1;
+                                }
+                            }
+                        }
+                    }
+                } else if (gap == 3) {
+                    // gap at D
+                    for (int q = 0; q < moves.length; q++) {
+                        moveColumn = moves[q].getFrom().getY();
+                        moveRow    = moves[q].getTo().getX();
+
+                        if (moveColumn == 1 && (moveRow == 2 || moveRow == 5)) {
+                            ranks[q] = 1;
+                        }
+                    }
+                } else if (gap == 4) {
+                    for (int q = 0; q < moves.length; q++) {
+                        moveColumn = moves[q].getFrom().getY();
+                        moveRow    = moves[q].getTo().getX();
+
+                        if (moveColumn == 6 && (moveRow == 2 || moveRow == 5)) {
+                            ranks[q] = 1;
+                        }
+                    }
+                }
+
+            } else {
+                ranks = getRanks(ranks, moves);
+
+                // experimental repeat backtrack;
+                /*
+                Move moveApplied;
+                for (int l0 = 0; l0 < moves.length; l0++) {
+
+                    moveApplied = moves[l0];
+                    //              |
+                    //   APPLY MOVE |
+                    //              V
+
+                    applyToWholeBoard(moveApplied);
+
+                    Move[] oppMoves1 = opponent.getAllValidMoves();
+                    int max1 = -100000;
+                    boolean isEmpty = false;
+
+                    for (int l1 = 0; l1 < oppMoves1.length; l1++) {
+                        moveApplied = oppMoves1[l1];
+                        //              |
+                        //   APPLY MOVE |
+                        //              V
+
+                        applyToWholeBoard(moveApplied);
+
+
+                        //get new ranks
+                        int[] ranksL1;
+                        Move[] plMoves1 = getAllValidMoves();
+                        ranksL1 = new int[plMoves1.length];
+
+                        ranksL1 = getRanks(ranksL1, plMoves1);
+
+                        unappltoWholeBoard(moveApplied);
+
+                        int sum = 0;
+
+                        for (int ra : ranksL1) {
+                            sum += ra;
+                        }
+
+                        if (max1 < sum) {
+                            max1 = sum;
+                        }
+
+                        if (ranksL1.length > 0) {
+                            isEmpty = true;
+                        }
+                        //              ^
+                        // UNAPPLY MOVE |
+                        //              |
+                    }
+
+                    if (isEmpty) {
+                        ranks[l0] = max1;
+                    }
+
+                    unappltoWholeBoard(moveApplied);
+
+                    //              ^
+                    // UNAPPLY MOVE |
+                    //              |
+                }
+                */
+            }
+
+            //---------------------------------
+            //NO EDIT AFTER THIS LINE RANKS END
+            //find max and random rank max
+            max = ranks[0];
+            for (int rank : ranks) {
+                if (max < rank) {
+                    max = rank;
+                }
+            }
+
+            for (int rank : ranks) {
+                if (max == rank) {
+                    k++;
+                }
+            }
+
+            chosenMoves = new int[k];
+            k = 0;
+            for (int i = 0; i < ranks.length; i++) {
+                if (max == ranks[i]) {
+                    chosenMoves[k] = i;
+                    k++;
+                }
+            }
+
+            int random = rg.nextInt(k);
+
+            moveNo = chosenMoves[random];
 
             // NO EDIT -----------------------
             if (debug) {
@@ -503,5 +500,334 @@ public class Player {
             }
         }
         return 0;
+    }
+
+    private boolean isAttackedAndNotEnP(Square p) {
+        Color op;
+        int x, y;
+        x = p.getX();
+        y = p.getY();
+
+        //System.out.println("("+x+","+y+") color: " + p.occupiedBy());
+
+        if (p.occupiedBy() == Color.WHITE) {
+            op = Color.BLACK;
+            if (x != 7 && y != 0) {
+                if (b.getSquare(x + 1, y - 1).occupiedBy() == op) {
+                    return true;
+                }
+            }
+            if (x != 7 && y != 7) {
+                if (b.getSquare(x + 1, y + 1).occupiedBy() == op) {
+                    return true;
+                }
+            }
+        } else if (p.occupiedBy() == Color.BLACK){
+            op = Color.WHITE;
+
+            if (x != 0 && y != 0) {
+                if (b.getSquare(x - 1, y - 1).occupiedBy() == op) {
+                    return true;
+                }
+            }
+
+            if (x != 0 && y != 7) {
+                if (b.getSquare(x - 1, y + 1).occupiedBy() == op) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    private int[] getRanks(int[] RANKS, Move[] moves){
+        //copy matrix
+        int[] ranks = new int[RANKS.length];
+
+        for (int q = 0; q < RANKS.length; q++) {
+            ranks[q] = RANKS[q];
+        }
+
+        //points allocation
+        int[] p = new int[100];
+
+
+        // TODO IN CASE OF gap == gap opponent and 3 pices on one side AI can be beaten
+        // TODO IN CASE OF move and can be attacked(en passant included) after -20 (if after this move and ispassed pawn +8);
+        // TODO IF MAKE passed pawn that is better than oders +15
+        // if move and make opponent have passedPawn and current no passedPawn -100
+        p[0] = -100;
+        // if move and make opponent have passedPawn and current has passedPawn but opponent is closer -50
+        p[5] = -49;
+        // if gapsW == gapsB guard week side and -1 after
+        p[7] = -1;
+        // guard pawn = 3
+        p[1] = 3;
+        // capture unguarded pawn = 4
+        p[2] = 4;
+        // if pawn is attacked and unguarded = 5 && attack isn't en passant
+        p[6] = 5;
+        // isPassedPawn = 10
+        p[3] = 10;
+        // isPassedPawn and capture = 12
+        // p[2] again
+        // last line = 1000
+        p[4] = 1000;
+
+
+        int min, max;
+        Square[] oppoistePawns;
+        Square[] myPawns, myNewPawns;
+        Square pawn;
+        Color opposite;
+        int xt, yt, xf, yf;
+
+        opposite = opponent.getColor();
+
+        //find passed pawns
+        min = 10;
+        int tillFin = 0;
+        int column;
+        int row;
+
+        for (int i = 0; i < moves.length; i++) {
+            if (gap == opponentGap) {
+                column = moves[i].getTo().getY();
+                row = moves[i].getTo().getX();
+
+                if (gap != 0 && gap != 7) {
+                    if (gap >= 4) {
+                        // gap >=4
+                        for (int q = gap + 1; q < 8; q++) {
+                            if (column == q) {
+                                ranks[i] += p[7];
+                            }
+                        }
+                    } else {
+                        // gap < 4
+                        for (int q = gap - 1; q >= 0; q--) {
+                            if (column == q) {
+                                ranks[i] += p[7];
+                            }
+                        }
+                    }
+                }
+            }
+            //              |
+            //   APPLY MOVE |
+            //              V
+
+            applyToWholeBoard(moves[i]);
+
+            pawn = b.getSquare(moves[i].getTo().getX(), moves[i].getTo().getY());
+
+            if (isPassedPawn(pawn, c)) {
+                if (c == Color.WHITE) {
+                    tillFin = 7 - moves[i].getTo().getX();
+
+                } else {
+                    tillFin = moves[i].getTo().getX() - 1;
+                }
+                if (min > tillFin){
+                    min = tillFin;
+                }
+            }
+
+            unappltoWholeBoard(moves[i]);
+
+            //              ^
+            // UNAPPLY MOVE |
+            //              |
+
+        }
+
+        boolean isOpPassed;
+
+        // main for
+        for (int i = 0; i < moves.length; i++) {
+
+            xt = moves[i].getTo().getX();
+            yt = moves[i].getTo().getY();
+            xf = moves[i].getFrom().getX();
+            yf = moves[i].getFrom().getY();
+
+            //debug
+                    /*System.out.println("For move " + i + ": from ("+(moves[i].getFrom().getX()+1)+","+(moves[i].getFrom().getY()+1)+") " +
+                            "to ("+(moves[i].getTo().getX()+1)+","+(moves[i].getTo().getY()+1)+") isCapture: "+moves[i].isCapture() + ":");*/
+            //debug
+
+            // is pawn guarded, if not find a move if possible
+            myPawns = getAllPawns();
+            for (int j = 0; j < myPawns.length; j++) {
+                if (myPawns[j].getX() != 1 && myPawns[j].getX() != 6) {
+                    if (!guardedPawn(myPawns[j])) {
+                        int x, y;
+                        x = myPawns[j].getX();
+                        y = myPawns[j].getY();
+
+                        //              |
+                        //   APPLY MOVE |
+                        //              V
+
+                        applyToWholeBoard(moves[i]);
+
+                        if (guardedPawn(b.getSquare(x, y))) {
+                            ranks[i] += p[1]; // 1
+                        }
+                        unappltoWholeBoard(moves[i]);
+
+                        //              ^
+                        // UNAPPLY MOVE |
+                        //              |
+
+                    }
+                }
+            }
+
+            // if pawn is attacked and unguarded && attack is not en passant
+            myPawns = getAllPawns();
+            for (Square thePawn : myPawns) {
+               if (isAttackedAndNotEnP(thePawn) && !guardedPawn(thePawn)) {
+                   // if attacked and not guarded
+
+                   //              |
+                   //   APPLY MOVE |
+                   //              V
+
+                   applyToWholeBoard(moves[i]);
+
+                   if (moves[i].getFrom().getX() == thePawn.getX() && moves[i].getFrom().getY() == thePawn.getY()) {
+                       // if moved the same pawn
+                       if (!isAttackedAndNotEnP(b.getSquare(moves[i].getTo().getX(), moves[i].getTo().getY()))) {
+                            // if is not attacked anymore
+                           ranks[i] += p[6]; //3
+                       }
+                   } else {
+                       if (guardedPawn(thePawn)) {
+                           // if is guarded
+                           ranks[i] += p[6]; //3
+                       }
+                   }
+
+                   unappltoWholeBoard(moves[i]);
+
+                   //              ^
+                   // UNAPPLY MOVE |
+                   //              |
+               }
+            }
+
+            //              |
+            //   APPLY MOVE |
+            //              V
+
+            applyToWholeBoard(moves[i]);
+
+            pawn = b.getSquare(xt, yt);
+
+            if (c == Color.WHITE) {
+                //last line
+                if (pawn.getX() == 7) {
+                    ranks[i] += p[4]; // 1000
+                }
+                //end last line
+            } else {
+                //last line
+                if (pawn.getX() == 0) {
+                    ranks[i] += p[4]; // 1000
+                }
+                //end last line
+            }
+
+            if (isPassedPawn(pawn, c)) {
+                if (c == Color.WHITE) {
+                    //WHITE
+                    tillFin = 7 - xt;
+                } else {
+                    // BLACK
+                    tillFin = xt - 1;
+                }
+
+                //if my passed pawn is further than the opponent -49
+                int tillFinOp;
+                oppoistePawns = opponent.getAllPawns();
+                for (int q = 0; q < oppoistePawns.length; q++) {
+                    if (isPassedPawn(oppoistePawns[q], opposite)) {
+                        if (opposite == Color.WHITE) {
+                            //WHITE
+
+                            tillFinOp = 7 - oppoistePawns[q].getX();
+                        } else {
+                            // BLACK
+
+                            tillFinOp = oppoistePawns[q].getX() - 1;
+                        }
+
+                        if (tillFinOp <= tillFin) {
+                            ranks[i] += p[5]; // -49
+                        }
+                    }
+                }
+
+                if (min == tillFin) {
+                    ranks[i] += p[3]; // 5
+                    if (moves[i].isCapture()) {
+                        ranks[i] += p[2]; // 2
+                    }
+                }
+
+                unappltoWholeBoard(moves[i]);
+
+                //              ^
+                // UNAPPLY MOVE |
+                //              |
+
+            } else {
+                //isOpPassed = false;
+                oppoistePawns = opponent.getAllPawns();
+
+                for (Square opPawn : oppoistePawns) {
+                    if (isPassedPawn(opPawn, opposite)) {
+                        //isOpPassed = true;
+                        ranks[i] += p[0]; // -100
+                    }
+                }
+                /*if (isOpPassed) {
+                    ranks[i] += p[0]; // -100
+                }*/
+                unappltoWholeBoard(moves[i]);
+
+                //              ^
+                // UNAPPLY MOVE |
+                //              |
+
+                if (b.getSquare(xt, yt).occupiedBy() == opposite) {
+                    // NORMAL CAPTURE
+                    if (!guardedPawn(b.getSquare(xt, yt))) {
+                        //System.out.println("Pawn NC ("+(xt+1)+","+(yt+1)+") is unguarded color: "+b.getSquare(xt, yt).occupiedBy());
+                        ranks[i] += p[2]; // 2
+                    }
+                } else if (b.getSquare(xt, yt).occupiedBy() == Color.NONE && moves[i].isCapture()) {
+                    // EN PASSANT
+
+                    // set none to opposite
+                    b.getSquare(xt, yt).setOccupier(opposite);
+                    if (!guardedPawn(b.getSquare(xt, yt))) {
+                        //System.out.println("Pawn E-PC ("+(xt+1)+","+(yt+1)+") is unguarded color: "+b.getSquare(xt, yt).occupiedBy());
+                        ranks[i] += p[2]; // 2
+                    }
+
+                    // set opposite to none
+                    b.getSquare(xt, yt).setOccupier(Color.NONE);
+                } else if (b.getSquare(xt, yt).occupiedBy() == Color.NONE && !moves[i].isCapture()) {
+                    // NORMAL MOVE
+                }
+            }
+        }
+        //end main for
+        //end find passed pawns
+
+        return ranks;
     }
 }
