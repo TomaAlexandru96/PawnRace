@@ -1,10 +1,10 @@
 import java.util.Scanner;
 public class PawnRace {
-    public static String input1, input2, input3, input4;
-    public static Color p1c, p2c;
-    public static char wgap, bgap;
-    public static boolean p1comp, p2comp;
-    public static boolean debug = false;
+    private static String input1, input2, input3, input4;
+    private static Color p1c, p2c;
+    private static char wgap, bgap;
+    private static boolean p1comp, p2comp;
+    private static boolean debug = false;
 
     public static void main(String[] args) {
         // menu
@@ -95,13 +95,13 @@ public class PawnRace {
 
                 // AI VS AI
                 if (game.getCurrentPlayer() == Color.WHITE) {
-                    if (current.g.k > 0) {
-                        System.out.println("Last move was BLACK: " + current.g.getLastMove().getSAN());
+                    if (current.getGame().getTotalMoves() > 0) {
+                        System.out.println("Last move was BLACK: " + current.getGame().getLastMove().getSAN());
                         System.out.println("It's white's turn to move");
                     }
                 } else {
-                    if (current.g.k > 0) {
-                        System.out.println("Last move was WHITE: " + current.g.getLastMove().getSAN());
+                    if (current.getGame().getTotalMoves() > 0) {
+                        System.out.println("Last move was WHITE: " + current.getGame().getLastMove().getSAN());
                         System.out.println("It's black's turn to move");
                     }
                 }
@@ -116,11 +116,17 @@ public class PawnRace {
                     game.unapplyMove(game.getLastMove());
                     game.unapplyMove(game.getLastMove());
 
-                    p1.g = game;
+
+                    // set game
+                    /*
+                    p1.getGame() = game;
                     p1.b = game.b;
 
-                    p2.g = game;
+                    p2.getGame() = game;
                     p2.b = game.b;
+                    */
+                    p1.setGame(game, game.getBoard());
+                    p2.setGame(game, game.getBoard());
 
                     continue game;
                 } else if (readString.equals("exit")){
@@ -128,11 +134,15 @@ public class PawnRace {
                 } else if (readString.equals("help")) {
                     help();
 
+                    /*
                     p1.g = game;
                     p1.b = game.b;
 
                     p2.g = game;
                     p2.b = game.b;
+                    */
+                    p1.setGame(game, game.getBoard());
+                    p2.setGame(game, game.getBoard());
 
                     continue game;
                 } else if (readString.equals("menu")) {
@@ -154,13 +164,13 @@ public class PawnRace {
 
             if (!current.isComputerPlayer()) {
                 if (game.getCurrentPlayer() == Color.WHITE) {
-                    if (current.g.k > 0) {
-                        System.out.println("Last move was BLACK: " + current.g.getLastMove().getSAN());
+                    if (current.getGame().getTotalMoves() > 0) {
+                        System.out.println("Last move was BLACK: " + current.getGame().getLastMove().getSAN());
                     }
                     System.out.println("It's white's turn to move:");
                 } else {
-                    if (current.g.k > 0) {
-                        System.out.println("Last move was WHITE: " + current.g.getLastMove().getSAN());
+                    if (current.getGame().getTotalMoves() > 0) {
+                        System.out.println("Last move was WHITE: " + current.getGame().getLastMove().getSAN());
                     }
                     System.out.println("It's black's turn to move:");
                 }
@@ -208,22 +218,31 @@ public class PawnRace {
                 } else {
                     game.applyMove(game.parseMove(input));
                 }
-
+                /*
                 p1.g = game;
                 p1.b = game.b;
 
                 p2.g = game;
                 p2.b = game.b;
+                */
+
+                p1.setGame(game, game.getBoard());
+                p2.setGame(game, game.getBoard());
             } else {
                 current.makeMove();
-                game  = current.g;
-                board = current.b;
+                game  = current.getGame();
+                board = game.getBoard();
 
+                /*
                 p1.g = game;
                 p1.b = game.b;
 
                 p2.g = game;
                 p2.b = game.b;
+                */
+
+                p1.setGame(game, game.getBoard());
+                p2.setGame(game, game.getBoard());
             }
         }
 
@@ -458,7 +477,7 @@ public class PawnRace {
         if (input.toLowerCase().equals("exit")) {
             endGame();
         }
-        if ((input.equals("undo") && game.k > 0) || (input.equals("undo2") && game.k > 1) || input.equals("help") || input.equals("menu")) {
+        if ((input.equals("undo") && game.getTotalMoves() > 0) || (input.equals("undo2") && game.getTotalMoves() > 1) || input.equals("help") || input.equals("menu")) {
             return true;
         }
         return false;

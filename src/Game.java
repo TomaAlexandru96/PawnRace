@@ -1,7 +1,7 @@
 public class Game {
-    public Board b;
+    private Board b;
     private Move[] ms;
-    public int k;
+    private int k;
     private Color currentPlayer;
 
     public Game(Board board) {
@@ -9,6 +9,14 @@ public class Game {
         ms = new Move[1000];
         k  = 0;
         currentPlayer = Color.WHITE;
+    }
+
+    public int getTotalMoves() {
+        return k;
+    }
+
+    public Board getBoard() {
+        return b;
     }
 
     public Color getCurrentPlayer() {

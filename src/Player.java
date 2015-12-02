@@ -1,12 +1,12 @@
 import java.util.Random;
 
 public class Player {
-    public Game g;
-    public Board b;
+    private Game g;
+    private Board b;
     private Color c;
     private boolean isComputer;
     private Player opponent;
-    boolean debug;
+    private boolean debug;
     private int gap;
     private int opponentGap;
 
@@ -17,6 +17,19 @@ public class Player {
         isComputer = isComputerPlayer;
         this.debug = debug;
         gap = getMissing(c);
+    }
+
+    public int getGap() {
+        return gap;
+    }
+
+    public void setGame(Game game, Board board) {
+        this.g = game;
+        this.b = board;
+    }
+
+    public Game getGame() {
+        return g;
     }
 
     public void setOpponent(Player opponent) {
@@ -269,7 +282,7 @@ public class Player {
                 rank = 0;
             }
 
-            if (g.k == 0 || g.k == 1) {
+            if (g.getTotalMoves() == 0 || g.getTotalMoves() == 1) {
                 // first move
                 int moveColumn;
                 int moveRow;
@@ -468,19 +481,18 @@ public class Player {
 
 
             // NO EDIT
-            g.applyMove(moveToMake);
-            b = g.b;
+            applyToWholeBoard(moveToMake);
         }
     }
 
     private void applyToWholeBoard(Move move) {
         g.applyMove(move);
-        b = g.b;
+        b = g.getBoard();
     }
 
-    private void unappltoWholeBoard(Move move) {
+    private void unapplytoWholeBoard(Move move) {
         g.unapplyMove(move);
-        b = g.b;
+        b = g.getBoard();
     }
 
     private int getMissing(Color playerColor){
@@ -634,7 +646,7 @@ public class Player {
                 }
             }
 
-            unappltoWholeBoard(moves[i]);
+            unapplytoWholeBoard(moves[i]);
 
             //              ^
             // UNAPPLY MOVE |
@@ -675,7 +687,7 @@ public class Player {
                         if (guardedPawn(b.getSquare(x, y))) {
                             ranks[i] += p[1]; // 1
                         }
-                        unappltoWholeBoard(moves[i]);
+                        unapplytoWholeBoard(moves[i]);
 
                         //              ^
                         // UNAPPLY MOVE |
@@ -710,7 +722,7 @@ public class Player {
                        }
                    }
 
-                   unappltoWholeBoard(moves[i]);
+                   unapplytoWholeBoard(moves[i]);
 
                    //              ^
                    // UNAPPLY MOVE |
@@ -777,7 +789,7 @@ public class Player {
                     }
                 }
 
-                unappltoWholeBoard(moves[i]);
+                unapplytoWholeBoard(moves[i]);
 
                 //              ^
                 // UNAPPLY MOVE |
@@ -796,7 +808,7 @@ public class Player {
                 /*if (isOpPassed) {
                     ranks[i] += p[0]; // -100
                 }*/
-                unappltoWholeBoard(moves[i]);
+                unapplytoWholeBoard(moves[i]);
 
                 //              ^
                 // UNAPPLY MOVE |
