@@ -18,11 +18,22 @@ public class PawnRaceWindow {
     private static ImageIcon whitePawn = new ImageIcon("whitePawn.png");
     private static ImageIcon blackPawn = new ImageIcon("blackPawn.png");
     private static ImageIcon[][] defaultImage = new ImageIcon[10][10];
-    private static JLabel lastMove;
-    private static JLabel turn;
+    private static JLabel lastMove, turn;
+    private static JLabel[] labelsL = new JLabel[10];
+    private static JLabel[] labelsR = new JLabel[10];
+    private static JLabel[] labelsT = new JLabel[10];
+    private static JLabel[] labelsB = new JLabel[10];
     private static JButton nextMove;
     private static JPanel menuPanel = new JPanel();
     private static JPanel gamePanel = new JPanel();
+
+    private static int offset = 0, labelOffset = 20;
+    private static int windowW = 640, windowH = 740;
+    private static int windowDifference = Math.abs(windowH - windowW);
+    private static int menuOffset = 200;
+    private static int menuCol2 = 270;
+    private static int boxSize = 75;
+    private static int buttonsDist = 30;
 
     private static boolean nextMovePushed = false;
     private static boolean isSelectedFrom = false, isSelectedTo = false;
@@ -80,14 +91,17 @@ public class PawnRaceWindow {
             p1c = false;
             p2c = false;
             color = Color.WHITE;
+            displayBoard(Color.WHITE);
         } else if (mode == 2) {
             p1c = false;
             p2c = true;
+            displayBoard(color);
         } else {
             p1c = true;
             p2c = true;
             color = Color.WHITE;
             nextMove.setVisible(true);
+            displayBoard(Color.WHITE);
         }
 
         opponentColor = color == Color.WHITE ? Color.BLACK : Color.WHITE;
@@ -168,6 +182,11 @@ public class PawnRaceWindow {
 
                         if (valid) {
                             applyMove(currentMove);
+                            if (mode == 1) {
+                                if (!game.isFinished()) {
+                                    displayBoard(game.getCurrentPlayer());
+                                }
+                            }
                         }
                     }
                 }
@@ -207,17 +226,10 @@ public class PawnRaceWindow {
     }
 
     private static void createWindow() {
-        JLabel[] labels = new JLabel[20];
+        //JLabel[] labels = new JLabel[20];
         JFrame frame = new JFrame("Pawn Race");
 
         char c;
-        int offset = 0, labelOffset = 20;
-        int windowW = 640, windowH = 740;
-        int windowDifference = Math.abs(windowH - windowW);
-        int menuOffset = 200;
-        int menuCol2 = 270;
-        int boxSize = 75;
-        int buttonsDist = 30;
         JButton undo, undo2, menu;
         JButton start, yes, no;
         JComboBox modeSelect, gapWC, gapBC, colorBox;
@@ -319,19 +331,18 @@ public class PawnRaceWindow {
 
         for (int i = 0; i < 8; i++) {
             c = (char) ('A' + i);
-            labels[i] = new JLabel("<html><font style=\"color: white;\">" + c + "</font><html>", JLabel.CENTER);
-            labels[i].setSize(new Dimension(boxSize, labelOffset));
-            labels[i].setLocation(labelOffset + i * boxSize, 0);
-            gamePanel.add(labels[i]);
+            labelsT[i] = new JLabel("<html><font style=\"color: white;\">" + c + "</font><html>", JLabel.CENTER);
+            labelsT[i].setSize(new Dimension(boxSize, labelOffset));
+            labelsT[i].setLocation(labelOffset + i * boxSize, 0);
+            gamePanel.add(labelsT[i]);
         }
 
         for (int i = 7; i >= 0; i--) {
-            labels[i] = new JLabel("<html><font style=\"color: white;\">" + (i + 1) + "</font><html>");
-            labels[i].setVerticalTextPosition(JLabel.CENTER);
-            labels[i].setHorizontalAlignment(JLabel.CENTER);
-            labels[i].setSize(new Dimension(labelOffset, boxSize));
-            labels[i].setLocation(0, labelOffset + (7 - i) * boxSize);
-            gamePanel.add(labels[i]);
+            labelsL[i] = new JLabel("<html><font style=\"color: white;\">" + (i + 1) + "</font><html>");
+            labelsL[i].setVerticalTextPosition(JLabel.CENTER);
+            labelsL[i].setHorizontalAlignment(JLabel.CENTER);
+            labelsL[i].setSize(new Dimension(labelOffset, boxSize));
+            labelsL[i].setLocation(0, labelOffset + (7 - i) * boxSize);
 
             for (int j = 0; j < 8; j++) {
                 tiles[i][j] = new JButton("");
@@ -342,7 +353,7 @@ public class PawnRaceWindow {
                 pawns[i][j] = new JLabel();
                 pawns[i][j].setSize(new Dimension(boxSize, boxSize));
                 tiles[i][j].add(pawns[i][j]);
-                if (i % 2 == 0) {
+                if (i % 2 != 0) {
                     if (j % 2 == 0) {
                         // white
                         tiles[i][j].setIcon(white);
@@ -366,20 +377,22 @@ public class PawnRaceWindow {
                 gamePanel.add(tiles[i][j]);
             }
 
-            labels[i] = new JLabel("<html><font style=\"color: white;\">" + (i + 1) + "</font><html>");
-            labels[i].setVerticalTextPosition(JLabel.CENTER);
-            labels[i].setHorizontalAlignment(JLabel.CENTER);
-            labels[i].setSize(new Dimension(labelOffset, boxSize));
-            labels[i].setLocation(labelOffset + 8 * boxSize, labelOffset + (7 - i) * boxSize);
-            gamePanel.add(labels[i]);
+            labelsR[i] = new JLabel("<html><font style=\"color: white;\">" + (i + 1) + "</font><html>");
+            labelsR[i].setVerticalTextPosition(JLabel.CENTER);
+            labelsR[i].setHorizontalAlignment(JLabel.CENTER);
+            labelsR[i].setSize(new Dimension(labelOffset, boxSize));
+            labelsR[i].setLocation(labelOffset + 8 * boxSize, labelOffset + (7 - i) * boxSize);
+
+            gamePanel.add(labelsL[i]);
+            gamePanel.add(labelsR[i]);
         }
 
         for (int i = 0; i < 8; i++) {
             c = (char) ('A' + i);
-            labels[i] = new JLabel("<html><font style=\"color: white;\">" + c + "</font><html>", JLabel.CENTER);
-            labels[i].setSize(new Dimension(boxSize, labelOffset));
-            labels[i].setLocation(labelOffset + i * boxSize, labelOffset + boxSize * 8);
-            gamePanel.add(labels[i]);
+            labelsB[i] = new JLabel("<html><font style=\"color: white;\">" + c + "</font><html>", JLabel.CENTER);
+            labelsB[i].setSize(new Dimension(boxSize, labelOffset));
+            labelsB[i].setLocation(labelOffset + i * boxSize, labelOffset + boxSize * 8);
+            gamePanel.add(labelsB[i]);
         }
 
         undo  = new JButton("Undo");
@@ -558,6 +571,21 @@ public class PawnRaceWindow {
     }
 
     private static void selectSquare(int x, int y) {
+
+        if (mode == 2) {
+            if (color == Color.BLACK) {
+                x = 7 - x;
+                y = 7 - y;
+            }
+        }
+
+        if (mode == 1) {
+            if (game.getCurrentPlayer() == Color.BLACK) {
+                x = 7 - x;
+                y = 7 - y;
+            }
+        }
+
         if (!isSelectedFrom) {
             if (board.getSquare(x, y).occupiedBy() == game.getCurrentPlayer()) {
                 isSelectedFrom = true;
@@ -639,6 +667,9 @@ public class PawnRaceWindow {
         } else {
             setGame("");
         }
+        if (mode == 1) {
+            displayBoard(game.getCurrentPlayer());
+        }
     }
 
     private static void setGame(String text) {
@@ -654,5 +685,81 @@ public class PawnRaceWindow {
         turn.setText("<html><font style=\"color: white;\">It's " +
                 (game.getCurrentPlayer() == Color.WHITE ? "white" : "black")
                 + "'s turn to move.</font></html>");
+    }
+
+    private static void displayBoard(Color playerColor) {
+        if (playerColor == Color.WHITE) {
+            for (int i = 0; i < 8; i++) {
+                labelsT[i].setLocation(labelOffset + i * boxSize, 0);
+            }
+
+            for (int i = 7; i >= 0; i--) {
+                labelsL[i].setLocation(0, labelOffset + (7 - i) * boxSize);
+
+                for (int j = 0; j < 8; j++) {
+                    tiles[i][j].setLocation(new Point(labelOffset + j * boxSize, labelOffset + (7 - i) * boxSize));
+                    if (i % 2 != 0) {
+                        if (j % 2 == 0) {
+                            // white
+                            tiles[i][j].setIcon(white);
+                            defaultImage[i][j] = white;
+                        } else {
+                            tiles[i][j].setIcon(black);
+                            defaultImage[i][j] = black;
+                        }
+                    } else {
+                        if (j % 2 == 0) {
+                            // black
+                            tiles[i][j].setIcon(black);
+                            defaultImage[i][j] = black;
+                        } else {
+                            tiles[i][j].setIcon(white);
+                            defaultImage[i][j] = white;
+                        }
+                    }
+                }
+                labelsR[i].setLocation(labelOffset + 8 * boxSize, labelOffset + (7 - i) * boxSize);
+            }
+
+            for (int i = 0; i < 8; i++) {
+                labelsB[i].setLocation(labelOffset + i * boxSize,  labelOffset + boxSize * 8);
+            }
+        } else if (playerColor == Color.BLACK) {
+            for (int i = 0; i < 8; i++) {
+                labelsT[i].setLocation(labelOffset + (7 - i) * boxSize, 0);
+            }
+
+            for (int i = 0; i < 8; i++) {
+                labelsL[i].setLocation(0, labelOffset + i * boxSize);
+
+                for (int j = 7; j >= 0; j--) {
+                    tiles[i][j].setLocation(new Point(labelOffset + (7 - j) * boxSize, labelOffset + i * boxSize));
+                    if (i % 2 == 0) {
+                        if (j % 2 != 0) {
+                            // white
+                            tiles[i][j].setIcon(white);
+                            defaultImage[i][j] = white;
+                        } else {
+                            tiles[i][j].setIcon(black);
+                            defaultImage[i][j] = black;
+                        }
+                    } else {
+                        if (j % 2 != 0) {
+                            // black
+                            tiles[i][j].setIcon(black);
+                            defaultImage[i][j] = black;
+                        } else {
+                            tiles[i][j].setIcon(white);
+                            defaultImage[i][j] = white;
+                        }
+                    }
+                }
+                labelsR[i].setLocation(labelOffset + 8 * boxSize, labelOffset + i * boxSize);
+            }
+
+            for (int i = 0; i < 8; i++) {
+                labelsB[i].setLocation(labelOffset + (7 - i) * boxSize,  labelOffset + boxSize * 8);
+            }
+        }
     }
 }
