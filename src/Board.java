@@ -4,6 +4,29 @@ public class Board {
     private Square[][] b;
     private String emptyW, emptyB, white, black, vLine, hLine, c1, c2 ,c3 ,c4;
 
+    public Board() {
+        emptyB = ".";
+        emptyW = ".";
+        white  = "\u265F"; // ♟
+        black  = "\u2659"; // ♙
+        vLine  = "\u2502"; // │
+        hLine  = "\u2500"; // ─
+        c1     = "\u250C"; // ┌
+        c2     = "\u2510"; // ┐
+        c3     = "\u2514"; // └
+        c4     = "\u2518"; // ┘
+        //don't edit after this line
+
+        b = new Square[8][8];
+
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 8; j++) {
+                b[i][j] = new Square(i, j);
+                b[i][j].setOccupier(Color.NONE);
+            }
+        }
+    }
+
     public Board(char whiteGap, char blackGap) {
         emptyB = ".";
         emptyW = ".";

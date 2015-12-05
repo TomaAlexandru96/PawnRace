@@ -37,6 +37,9 @@ public class Player {
         opponentGap = getMissing(opponent.getColor());
     }
 
+    public Player getOpponent() {
+        return opponent;
+    }
 
     public Color getColor() {
         return c;
@@ -272,6 +275,7 @@ public class Player {
             int k = 0;
             int min, max;
             int xt, yt, xf, yf;
+            char gp, go;
             // END NO EDIT
 
 
@@ -360,69 +364,36 @@ public class Player {
                 }
 
             } else {
-                ranks = getRanks(ranks, moves);
-
-                // experimental repeat backtrack;
                 /*
-                Move moveApplied;
-                for (int l0 = 0; l0 < moves.length; l0++) {
+                Move preMove = null;
 
-                    moveApplied = moves[l0];
-                    //              |
-                    //   APPLY MOVE |
-                    //              V
+                gp = (char) (gap + 'a');
+                go = (char) (opponentGap + 'a');
 
-                    applyToWholeBoard(moveApplied);
+                //System.out.println("" + (gp) + (go) + "_"+ (c == Color.WHITE ? "W" : "B"));
+                try {
+                    preMove = TestFile.getMove("" + (gp) + (go) + "_"+ (c == Color.WHITE ? "W" : "B") + ".txt", b);
 
-                    Move[] oppMoves1 = opponent.getAllValidMoves();
-                    int max1 = -100000;
-                    boolean isEmpty = false;
+                    System.out.println(preMove);
 
-                    for (int l1 = 0; l1 < oppMoves1.length; l1++) {
-                        moveApplied = oppMoves1[l1];
-                        //              |
-                        //   APPLY MOVE |
-                        //              V
-
-                        applyToWholeBoard(moveApplied);
-
-
-                        //get new ranks
-                        int[] ranksL1;
-                        Move[] plMoves1 = getAllValidMoves();
-                        ranksL1 = new int[plMoves1.length];
-
-                        ranksL1 = getRanks(ranksL1, plMoves1);
-
-                        unappltoWholeBoard(moveApplied);
-
-                        int sum = 0;
-
-                        for (int ra : ranksL1) {
-                            sum += ra;
+                    if (preMove != null) {
+                        // 500
+                        boolean found = false;
+                        for (int q = 0; q < moves.length; q++) {
+                            if (equalMoves(preMove, moves[q])) {
+                                found = true;
+                                ranks[q] += 500;
+                            }
                         }
 
-                        if (max1 < sum) {
-                            max1 = sum;
+                        if (!found) {
+                            ranks = getRanks(ranks, moves);
                         }
-
-                        if (ranksL1.length > 0) {
-                            isEmpty = true;
-                        }
-                        //              ^
-                        // UNAPPLY MOVE |
-                        //              |
+                    } else {
+                        ranks = getRanks(ranks, moves);
                     }
-
-                    if (isEmpty) {
-                        ranks[l0] = max1;
-                    }
-
-                    unappltoWholeBoard(moveApplied);
-
-                    //              ^
-                    // UNAPPLY MOVE |
-                    //              |
+                } catch (Exception e) {
+                    ranks = getRanks(ranks, moves);
                 }
                 */
             }
@@ -841,5 +812,29 @@ public class Player {
         //end find passed pawns
 
         return ranks;
+    }
+
+    public boolean equalMoves(Move m1, Move m2) {
+        if (m1.getTo().getX() != m2.getTo().getX()) {
+            return false;
+        }
+
+        if (m1.getTo().getY() != m2.getTo().getY()) {
+            return false;
+        }
+
+        if (m1.getFrom().getX() != m2.getFrom().getX()) {
+            return false;
+        }
+
+        if (m1.getFrom().getY() != m2.getFrom().getY()) {
+            return false;
+        }
+
+        if (m1.isCapture() != m2.isCapture()) {
+            return false;
+        }
+
+        return true;
     }
 }
