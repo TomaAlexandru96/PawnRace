@@ -222,9 +222,10 @@ public class Player {
         return true;
     }
 
-    public boolean guardedPawn(Square square) {
+    public int guardedPawn(Square square) {
         int x, y;
-        boolean isGuarded = false;
+        int k = 0;
+        //boolean isGuarded = false;
         x = square.getX();
         y = square.getY();
 
@@ -232,13 +233,15 @@ public class Player {
             if (x != 0) {
                 if (y != 0) {
                     if (b.getSquare(x - 1, y - 1).occupiedBy() == Color.WHITE) {
-                        isGuarded = true;
+                        //isGuarded = true;
+                        k++;
                     }
                     //System.out.println("1 : "+ isGuarded + "("+x+","+y+") color: " + b.getSquare(x - 1, y - 1).occupiedBy());
                 }
                 if (y != 7) {
                     if (b.getSquare(x - 1, y + 1).occupiedBy() == Color.WHITE) {
-                        isGuarded = true;
+                        k++;
+                       // isGuarded = true;
                     }
                 }
             }
@@ -246,21 +249,23 @@ public class Player {
             if (x != 7) {
                 if (y != 0) {
                     if (b.getSquare(x + 1, y - 1).occupiedBy() == Color.BLACK) {
-                        isGuarded = true;
+                       // isGuarded = true;
+                        k++;
                     }
                 }
                 if (y != 7) {
                     if (b.getSquare(x + 1, y + 1).occupiedBy() == Color.BLACK) {
-                        isGuarded = true;
+                       // isGuarded = true;
+                        k++;
                     }
                 }
             }
         } else {
-            isGuarded = false;
+           // isGuarded = false;
         }
 
         //System.out.println("Final : " + isGuarded);
-        return isGuarded;
+        return k;
     }
 
     public void makeMove() {
@@ -396,6 +401,7 @@ public class Player {
                     ranks = getRanks(ranks, moves);
                 }
                 */
+                ranks = getRanks(ranks, moves);
             }
 
             //---------------------------------
@@ -539,6 +545,7 @@ public class Player {
         // TODO IN CASE OF gap == gap opponent and 3 pices on one side AI can be beaten
         // TODO IN CASE OF move and can be attacked(en passant included) after -20 (if after this move and ispassed pawn +8);
         // TODO IF MAKE passed pawn that is better than oders +15
+        // TODO MOVE and is going to be captured
         // if move and make opponent have passedPawn and current no passedPawn -100
         p[0] = -100;
         // if move and make opponent have passedPawn and current has passedPawn but opponent is closer -50
@@ -551,8 +558,8 @@ public class Player {
         p[2] = 4;
         // if pawn is attacked and unguarded = 5 && attack isn't en passant
         p[6] = 5;
-        // isPassedPawn = 10
-        p[3] = 10;
+        // isPassedPawn = 100
+        p[3] = 100;
         // isPassedPawn and capture = 12
         // p[2] again
         // last line = 1000
@@ -644,7 +651,8 @@ public class Player {
             myPawns = getAllPawns();
             for (int j = 0; j < myPawns.length; j++) {
                 if (myPawns[j].getX() != 1 && myPawns[j].getX() != 6) {
-                    if (!guardedPawn(myPawns[j])) {
+                    if (guardedPawn(myPawns[j]) == 0) {
+                        // if is not guarded
                         int x, y;
                         x = myPawns[j].getX();
                         y = myPawns[j].getY();
@@ -655,7 +663,7 @@ public class Player {
 
                         applyToWholeBoard(moves[i]);
 
-                        if (guardedPawn(b.getSquare(x, y))) {
+                        if (guardedPawn(b.getSquare(x, y)) > 0) {
                             ranks[i] += p[1]; // 1
                         }
                         unapplytoWholeBoard(moves[i]);
@@ -671,7 +679,7 @@ public class Player {
             // if pawn is attacked and unguarded && attack is not en passant
             myPawns = getAllPawns();
             for (Square thePawn : myPawns) {
-               if (isAttackedAndNotEnP(thePawn) && !guardedPawn(thePawn)) {
+               if (isAttackedAndNotEnP(thePawn) && guardedPawn(thePawn) == 0) {
                    // if attacked and not guarded
 
                    //              |
@@ -687,7 +695,7 @@ public class Player {
                            ranks[i] += p[6]; //3
                        }
                    } else {
-                       if (guardedPawn(thePawn)) {
+                       if (guardedPawn(thePawn) > 0) {
                            // if is guarded
                            ranks[i] += p[6]; //3
                        }
@@ -787,7 +795,8 @@ public class Player {
 
                 if (b.getSquare(xt, yt).occupiedBy() == opposite) {
                     // NORMAL CAPTURE
-                    if (!guardedPawn(b.getSquare(xt, yt))) {
+                    if (guardedPawn(b.getSquare(xt, yt)) == 0) {
+                        // if is not guarded
                         //System.out.println("Pawn NC ("+(xt+1)+","+(yt+1)+") is unguarded color: "+b.getSquare(xt, yt).occupiedBy());
                         ranks[i] += p[2]; // 2
                     }
@@ -796,7 +805,8 @@ public class Player {
 
                     // set none to opposite
                     b.getSquare(xt, yt).setOccupier(opposite);
-                    if (!guardedPawn(b.getSquare(xt, yt))) {
+                    if (guardedPawn(b.getSquare(xt, yt)) == 0) {
+                        // if is not guarded
                         //System.out.println("Pawn E-PC ("+(xt+1)+","+(yt+1)+") is unguarded color: "+b.getSquare(xt, yt).occupiedBy());
                         ranks[i] += p[2]; // 2
                     }

@@ -128,7 +128,6 @@ public class Board {
             System.out.print(hLine);
         }
         System.out.println(c2 + "  ");
-
         //body
         if (color == Color.WHITE) {
             for (int i = 7; i >= 0; i--) {

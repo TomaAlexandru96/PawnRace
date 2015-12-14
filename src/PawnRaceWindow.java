@@ -49,8 +49,20 @@ public class PawnRaceWindow {
     private static boolean run = false;
     private static boolean oneTime = true;
     private static boolean returnToMenu = false;
+    private static boolean debug = false;
 
     public static void main(String[] args) {
+
+        //DEBUG MODE
+        if (args.length > 0) {
+            for (String arg : args) {
+                if (arg.toLowerCase().equals("debug")) {
+                    debug = true;
+                }
+            }
+        }
+        //END DEBUG MODE
+
         createWindow();
         while (true) {
             try {
@@ -108,8 +120,8 @@ public class PawnRaceWindow {
 
         board = new Board(gapW, gapB);
         game = new Game(board);
-        p1 = new Player(game, board, color, p1c, false);
-        p2 = new Player(game, board, opponentColor, p2c, false);
+        p1 = new Player(game, board, color, p1c, debug);
+        p2 = new Player(game, board, opponentColor, p2c, debug);
 
         p1.setOpponent(p2);
         p2.setOpponent(p1);
